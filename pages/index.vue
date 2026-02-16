@@ -245,15 +245,15 @@ const user = useSupabaseUser();
     </section>
 
     <!-- CTA Section -->
-    <section v-if="!user" class="py-10 bg-primary-600 text-white">
+    <section v-if="!user" class="py-10 bg-red-600 text-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-2xl font-bold mb-3">Ready to Save Lives?</h2>
-        <p class="text-sm mb-5 text-primary-100">
+        <p class="text-sm mb-5 text-red-100">
           Join our community of heroes. Register today and make your first donation.
         </p>
         <NuxtLink
           to="/register"
-          class="bg-white text-primary-600 px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-gray-100 transition inline-block"
+          class="bg-white text-red-700 px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-gray-100 transition inline-block"
         >
           Register Now
         </NuxtLink>
