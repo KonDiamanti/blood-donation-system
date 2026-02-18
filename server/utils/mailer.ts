@@ -1,6 +1,4 @@
 import nodemailer from 'nodemailer'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 function createTransport() {
   return nodemailer.createTransport({
@@ -14,9 +12,9 @@ function createTransport() {
   })
 }
 
-function loadTemplate(name: string, vars: Record<string, string>): string {
-  const filePath = join(process.cwd(), 'server/email-templates', `${name}.html`)
-  let html = readFileSync(filePath, 'utf-8')
+async function loadTemplate(name: string, vars: Record<string, string>): Promise<string> {
+  const storage = useStorage('assets:email-templates')
+  let html = (await storage.getItem<string>(`${name}.html`)) ?? ''
   for (const [key, value] of Object.entries(vars)) {
     html = html.replaceAll(`{{${key}}}`, value)
   }
@@ -32,7 +30,7 @@ export async function sendApplicationStatusEmail(opts: {
   const transporter = createTransport()
 
   if (opts.status === 'approved') {
-    const html = loadTemplate('application-approved', {
+    const html = await loadTemplate('application-approved', {
       firstName: opts.firstName,
       appUrl: process.env.APP_URL ?? 'https://blood-donation-system-neon.vercel.app',
     })
@@ -46,7 +44,7 @@ export async function sendApplicationStatusEmail(opts: {
     const rejectionReasonBlock = opts.rejectionReason
       ? `<p style="background:#fef2f2;border-left:4px solid #EE3545;padding:10px 14px;color:#374151;"><strong>Reason:</strong> ${opts.rejectionReason}</p>`
       : ''
-    const html = loadTemplate('application-rejected', {
+    const html = await loadTemplate('application-rejected', {
       firstName: opts.firstName,
       rejectionReasonBlock,
     })
@@ -75,7 +73,7 @@ export async function sendAppointmentConfirmationEmail(opts: {
     day: 'numeric',
   })
 
-  const html = loadTemplate('appointment-confirmation', {
+  const html = await loadTemplate('appointment-confirmation', {
     firstName: opts.firstName,
     clinicName: opts.clinicName,
     clinicAddress: opts.clinicAddress,

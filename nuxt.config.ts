@@ -20,4 +20,11 @@ export default defineNuxtConfig({
       include: ['cookie'],
     },
   },
+
+  nitro: {
+    serverAssets: [{
+      baseName: 'email-templates',
+      dir: './server/email-templates',
+    }],
+  },
 })
