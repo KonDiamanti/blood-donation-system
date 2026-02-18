@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin: 0; padding: 24px; background: #f9fafb; font-family: sans-serif;">
+  <div style="max-width: 520px; margin: 0 auto; background: #fff; border-radius: 8px; padding: 32px; border: 1px solid #e5e7eb;">
+    <h2 style="margin: 0 0 16px; color: #29348D;">Appointment Confirmed ✓</h2>
+    <p style="color: #374151;">Dear {{firstName}},</p>
+    <p style="color: #374151;">Your blood donation appointment has been successfully booked.</p>
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+      <tr>
+        <td style="padding: 10px 12px; background: #f3f4f6; font-weight: 600; width: 38%; color: #374151;">Clinic</td>
+        <td style="padding: 10px 12px; background: #f9fafb; color: #111827;">{{clinicName}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; background: #f3f4f6; font-weight: 600; color: #374151;">Address</td>
+        <td style="padding: 10px 12px; background: #f9fafb; color: #111827;">{{clinicAddress}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; background: #f3f4f6; font-weight: 600; color: #374151;">Date</td>
+        <td style="padding: 10px 12px; background: #f9fafb; color: #111827;">{{appointmentDate}}</td>
+      </tr>
+    </table>
+    <p style="color: #374151;">This is a walk-in appointment — please visit the clinic during its operating hours on the selected date.</p>
+    <p style="color: #9ca3af; font-size: 13px; margin-top: 32px;">Thank you for your contribution.<br/>— Blood Donation System</p>
+  </div>
+</body>
+</html>

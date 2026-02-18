@@ -73,6 +73,22 @@ async function updateStatus(status: 'approved' | 'rejected') {
     .eq('id', selectedApp.value.id)
 
   if (!error) {
+    const citizenEmail = selectedApp.value.citizen?.email
+    const citizenFirstName = selectedApp.value.citizen?.first_name
+    console.log('[Email] Sending to:', citizenEmail, 'status:', status)
+
+    const emailResult = await $fetch('/api/email/send-application-status', {
+      method: 'POST',
+      body: {
+        email: citizenEmail,
+        firstName: citizenFirstName,
+        status,
+        rejectionReason: status === 'rejected' ? rejectionReason.value : undefined,
+      },
+    }).catch((err) => { console.error('[Email] Fetch error:', err); return null })
+
+    console.log('[Email] Result:', emailResult)
+
     isEditing.value = false
     selectedApp.value = null
     await loadApplications()

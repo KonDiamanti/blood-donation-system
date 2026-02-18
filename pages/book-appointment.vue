@@ -13,6 +13,7 @@ const applicationId = route.query.application as string
 const application = ref<DonationApplication | null>(null)
 const clinics = ref<Clinic[]>([])
 const selectedClinic = ref<Clinic | null>(null)
+const currentUser = ref<{ email: string; first_name: string } | null>(null)
 const selectedDate = ref('')
 const tempSelectedDate = ref('')
 const loading = ref(true)
@@ -31,7 +32,15 @@ onMounted(async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
 
-  const { data: app } = await client
+  const { data: profile } = await client
+    .from('profiles')
+    .select('email, first_name')
+    .eq('id', user.id)
+    .single()
+
+  if (profile) currentUser.value = profile
+
+  const { data: app } = await (client as any)
     .from('donation_applications')
     .select('*')
     .eq('id', applicationId)
@@ -71,16 +80,16 @@ watch(selectedClinic, async (newClinic) => {
   }
 })
 
-const minDate = computed(() => {
+const minDate = computed((): string => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().split('T')[0]
+  return tomorrow.toISOString().split('T')[0]!
 })
 
-const maxDate = computed(() => {
+const maxDate = computed((): string => {
   const threeMonths = new Date()
   threeMonths.setMonth(threeMonths.getMonth() + 3)
-  return threeMonths.toISOString().split('T')[0]
+  return threeMonths.toISOString().split('T')[0]!
 })
 
 const currentMonthDisplay = computed(() => {
@@ -118,7 +127,7 @@ const calendarDays = computed(() => {
     const date = new Date(year, month - 1, day)
     days.push({
       day,
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       isCurrentMonth: false,
       isSelectable: false,
       isSelected: false,
@@ -128,7 +137,7 @@ const calendarDays = computed(() => {
 
   for (let day = 1; day <= totalDays; day++) {
     const date = new Date(year, month, day)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = date.toISOString().split('T')[0]!
     const isSelectable = date >= minDateObj && date <= maxDateObj
     const isToday = date.getTime() === today.getTime()
 
@@ -147,7 +156,7 @@ const calendarDays = computed(() => {
     const date = new Date(year, month + 1, day)
     days.push({
       day,
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       isCurrentMonth: false,
       isSelectable: false,
       isSelected: false,
@@ -201,7 +210,7 @@ async function confirmBooking() {
     return
   }
 
-  const { error: insertError } = await client
+  const { error: insertError } = await (client as any)
     .from('appointments')
     .insert({
       application_id: applicationId,
@@ -217,6 +226,19 @@ async function confirmBooking() {
     saving.value = false
     showConfirmation.value = false
     return
+  }
+
+  if (currentUser.value) {
+    await $fetch('/api/email/send-appointment-confirmation', {
+      method: 'POST',
+      body: {
+        email: currentUser.value.email,
+        firstName: currentUser.value.first_name,
+        clinicName: selectedClinic.value!.name,
+        clinicAddress: `${selectedClinic.value!.address}, ${selectedClinic.value!.area}`,
+        appointmentDate: selectedDate.value,
+      },
+    }).catch(() => {})
   }
 
   success.value = true
@@ -273,7 +295,7 @@ async function confirmBooking() {
       </div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-3">
+    <form v-else @submit.prevent class="space-y-3">
       <div v-if="error" class="bg-red-50 text-red-700 rounded p-2.5 text-xs">
         {{ error }}
       </div>
