@@ -1,15 +1,7 @@
 async function loadTemplate(name: string, vars: Record<string, string>): Promise<string> {
-  const storage = useStorage('assets:email-templates')
-  const keys = await storage.getKeys()
-  console.log('[Template] Available keys:', JSON.stringify(keys))
-  const raw = await storage.getItemRaw(`${name}.html`)
-  console.log('[Template] Raw type:', typeof raw, '| has value:', !!raw)
-  let html = ''
-  if (typeof raw === 'string') {
-    html = raw
-  } else if (raw) {
-    html = new TextDecoder().decode(raw as Uint8Array)
-  }
+  const baseUrl = process.env.APP_URL ?? 'https://blood-donation-system-neon.vercel.app'
+  const res = await fetch(`${baseUrl}/email-templates/${name}.html`)
+  let html = await res.text()
   for (const [key, value] of Object.entries(vars)) {
     html = html.replaceAll(`{{${key}}}`, value)
   }

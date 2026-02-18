@@ -21,10 +21,4 @@ export default defineNuxtConfig({
     },
   },
 
-  nitro: {
-    serverAssets: [{
-      baseName: 'email-templates',
-      dir: './server/email-templates',
-    }],
-  },
 })
