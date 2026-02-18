@@ -14,6 +14,15 @@ const form = reactive({
 const error = ref("");
 const loading = ref(false);
 
+const passwordRules = computed(() => ({
+  length:  form.password.length >= 8,
+  upper:   /[A-Z]/.test(form.password),
+  number:  /[0-9]/.test(form.password),
+  symbol:  /[^A-Za-z0-9]/.test(form.password),
+}))
+
+const allPasswordMet = computed(() => Object.values(passwordRules.value).every(Boolean))
+
 onMounted(async () => {
   const {
     data: { user },
@@ -24,13 +33,13 @@ onMounted(async () => {
 async function handleRegister() {
   error.value = "";
 
-  if (form.password !== form.confirmPassword) {
-    error.value = "Passwords do not match";
+  if (!allPasswordMet.value) {
+    error.value = "Please meet all password requirements";
     return;
   }
 
-  if (form.password.length < 6) {
-    error.value = "Password must be at least 6 characters";
+  if (form.password !== form.confirmPassword) {
+    error.value = "Passwords do not match";
     return;
   }
 
@@ -136,8 +145,41 @@ async function handleRegister() {
               required
               autocomplete="new-password"
               class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
-              placeholder="Min 6 characters"
+              placeholder="Create a strong password"
             />
+
+            <!-- Strength bars -->
+            <div v-if="form.password.length > 0" class="mt-2 flex gap-1">
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="h-1 flex-1 rounded-full transition-colors duration-300"
+                :class="Object.values(passwordRules).filter(Boolean).length >= i ? 'bg-green-500' : 'bg-gray-200'"
+              />
+            </div>
+
+            <!-- Requirements checklist -->
+            <ul v-if="form.password.length > 0" class="mt-2 space-y-1">
+              <li
+                v-for="{ key, label } in [
+                  { key: 'length', label: 'At least 8 characters' },
+                  { key: 'upper',  label: 'One uppercase letter' },
+                  { key: 'number', label: 'One number' },
+                  { key: 'symbol', label: 'One special character' },
+                ]"
+                :key="key"
+                class="flex items-center gap-1.5 text-xs transition-colors duration-200"
+                :class="passwordRules[key as keyof typeof passwordRules] ? 'text-green-600' : 'text-gray-400'"
+              >
+                <svg v-if="passwordRules[key as keyof typeof passwordRules]" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <svg v-else class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="9" stroke-width="2" />
+                </svg>
+                {{ label }}
+              </li>
+            </ul>
           </div>
 
           <div>

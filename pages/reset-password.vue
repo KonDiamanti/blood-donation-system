@@ -9,10 +9,19 @@ const error = ref('')
 const loading = ref(false)
 const success = ref(false)
 
+const rules = computed(() => ({
+  length:  password.value.length >= 8,
+  upper:   /[A-Z]/.test(password.value),
+  number:  /[0-9]/.test(password.value),
+  symbol:  /[^A-Za-z0-9]/.test(password.value),
+}))
+
+const allMet = computed(() => Object.values(rules.value).every(Boolean))
+
 async function handleReset() {
   error.value = ''
-  if (password.value.length < 6) {
-    error.value = 'Password must be at least 6 characters'
+  if (!allMet.value) {
+    error.value = 'Please meet all password requirements'
     return
   }
   if (password.value !== confirmPassword.value) {
@@ -55,8 +64,41 @@ async function handleReset() {
               required
               autocomplete="new-password"
               class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
-              placeholder="At least 6 characters"
+              placeholder="Create a strong password"
             />
+
+            <!-- Strength bars -->
+            <div v-if="password.length > 0" class="mt-2 flex gap-1">
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="h-1 flex-1 rounded-full transition-colors duration-300"
+                :class="Object.values(rules).filter(Boolean).length >= i ? 'bg-green-500' : 'bg-gray-200'"
+              />
+            </div>
+
+            <!-- Requirements checklist -->
+            <ul v-if="password.length > 0" class="mt-2 space-y-1">
+              <li
+                v-for="{ key, label } in [
+                  { key: 'length', label: 'At least 8 characters' },
+                  { key: 'upper',  label: 'One uppercase letter' },
+                  { key: 'number', label: 'One number' },
+                  { key: 'symbol', label: 'One special character' },
+                ]"
+                :key="key"
+                class="flex items-center gap-1.5 text-xs transition-colors duration-200"
+                :class="rules[key as keyof typeof rules] ? 'text-green-600' : 'text-gray-400'"
+              >
+                <svg v-if="rules[key as keyof typeof rules]" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <svg v-else class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="9" stroke-width="2" />
+                </svg>
+                {{ label }}
+              </li>
+            </ul>
           </div>
 
           <div>
