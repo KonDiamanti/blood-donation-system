@@ -26,8 +26,8 @@ export default defineNuxtConfig({
       baseName: 'email-templates',
       dir: './server/email-templates',
     }],
-    externals: {
-      inline: ['nodemailer'],
+    rollupConfig: {
+      external: ['nodemailer'],
     },
   },
 })
