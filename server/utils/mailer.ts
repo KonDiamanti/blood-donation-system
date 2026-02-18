@@ -1,17 +1,3 @@
-import nodemailer from 'nodemailer'
-
-function createTransport() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  })
-}
-
 async function loadTemplate(name: string, vars: Record<string, string>): Promise<string> {
   const storage = useStorage('assets:email-templates')
   let html = (await storage.getItem<string>(`${name}.html`)) ?? ''
@@ -21,21 +7,38 @@ async function loadTemplate(name: string, vars: Record<string, string>): Promise
   return html
 }
 
+async function sendEmail(opts: { to: string; subject: string; html: string }) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Blood Donation System <onboarding@resend.dev>',
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    }),
+  })
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Resend error ${res.status}: ${body}`)
+  }
+}
+
 export async function sendApplicationStatusEmail(opts: {
   to: string
   firstName: string
   status: 'approved' | 'rejected'
   rejectionReason?: string
 }) {
-  const transporter = createTransport()
-
   if (opts.status === 'approved') {
     const html = await loadTemplate('application-approved', {
       firstName: opts.firstName,
       appUrl: process.env.APP_URL ?? 'https://blood-donation-system-neon.vercel.app',
     })
-    await transporter.sendMail({
-      from: `Blood Donation System <${process.env.SMTP_USER}>`,
+    await sendEmail({
       to: opts.to,
       subject: 'Your blood donation application has been approved',
       html,
@@ -48,8 +51,7 @@ export async function sendApplicationStatusEmail(opts: {
       firstName: opts.firstName,
       rejectionReasonBlock,
     })
-    await transporter.sendMail({
-      from: `Blood Donation System <${process.env.SMTP_USER}>`,
+    await sendEmail({
       to: opts.to,
       subject: 'Update on your blood donation application',
       html,
@@ -64,8 +66,6 @@ export async function sendAppointmentConfirmationEmail(opts: {
   clinicAddress: string
   appointmentDate: string
 }) {
-  const transporter = createTransport()
-
   const formattedDate = new Date(opts.appointmentDate).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -80,8 +80,7 @@ export async function sendAppointmentConfirmationEmail(opts: {
     appointmentDate: formattedDate,
   })
 
-  await transporter.sendMail({
-    from: `Blood Donation System <${process.env.SMTP_USER}>`,
+  await sendEmail({
     to: opts.to,
     subject: 'Your donation appointment is confirmed',
     html,
