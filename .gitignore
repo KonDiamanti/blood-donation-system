@@ -40,3 +40,9 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local only
+CLAUDE.md
+DEPLOYMENT.md
+QUICKSTART.md
+supabase/
