@@ -4,6 +4,8 @@ This is a redesign of a university project. Original repositories: [Frontend](ht
 
 A modern, full-stack blood donation management platform built with Nuxt 3, Vue 3, TypeScript, and Supabase.
 
+A live demo can be found [here](https://blood-donation-system-neon.vercel.app/)
+
 [![Tech Stack](https://img.shields.io/badge/Nuxt-3-00DC82)](https://nuxt.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E)](https://supabase.com)
