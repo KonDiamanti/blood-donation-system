@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Profile } from '~/types'
+
 definePageMeta({
   middleware: 'auth',
 })
@@ -30,7 +32,6 @@ const passwordForm = reactive({
 const passwordSaving = ref(false)
 const passwordSuccess = ref(false)
 const passwordError = ref('')
-const showPasswordForm = ref(false)
 
 const passwordRules = computed(() => ({
   length:  passwordForm.newPassword.length >= 8,
@@ -51,7 +52,7 @@ onMounted(async () => {
     .from('profiles')
     .select('first_name, last_name, phone_number, area, blood_type, age')
     .eq('id', user.id)
-    .single()
+    .single() as { data: Pick<Profile, 'first_name' | 'last_name' | 'phone_number' | 'area' | 'blood_type' | 'age'> | null, error: unknown }
 
   if (data) {
     form.first_name = data.first_name || ''
@@ -77,8 +78,7 @@ async function handleSave() {
     return
   }
 
-  const { error: updateError } = await client
-    .from('profiles')
+  const { error: updateError } = await (client.from('profiles') as any)
     .update({
       first_name: form.first_name,
       last_name: form.last_name,
