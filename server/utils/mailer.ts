@@ -9,22 +9,22 @@ async function loadTemplate(name: string, vars: Record<string, string>): Promise
 }
 
 async function sendEmail(opts: { to: string; subject: string; html: string }) {
-  const res = await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'api-key': process.env.BREVO_API_KEY ?? '',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Blood Donation System <onboarding@resend.dev>',
-      to: opts.to,
+      sender: { name: 'Blood Donation System', email: process.env.BREVO_SENDER_EMAIL },
+      to: [{ email: opts.to }],
       subject: opts.subject,
-      html: opts.html,
+      htmlContent: opts.html,
     }),
   })
   if (!res.ok) {
     const body = await res.text()
-    throw new Error(`Resend error ${res.status}: ${body}`)
+    throw new Error(`Brevo error ${res.status}: ${body}`)
   }
 }
 
