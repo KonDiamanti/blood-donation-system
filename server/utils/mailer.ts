@@ -1,6 +1,9 @@
 async function loadTemplate(name: string, vars: Record<string, string>): Promise<string> {
   const storage = useStorage('assets:email-templates')
+  const keys = await storage.getKeys()
+  console.log('[Template] Available keys:', JSON.stringify(keys))
   const raw = await storage.getItemRaw(`${name}.html`)
+  console.log('[Template] Raw type:', typeof raw, '| has value:', !!raw)
   let html = ''
   if (typeof raw === 'string') {
     html = raw
