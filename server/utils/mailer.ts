@@ -1,6 +1,12 @@
 async function loadTemplate(name: string, vars: Record<string, string>): Promise<string> {
   const storage = useStorage('assets:email-templates')
-  let html = (await storage.getItem<string>(`${name}.html`)) ?? ''
+  const raw = await storage.getItemRaw(`${name}.html`)
+  let html = ''
+  if (typeof raw === 'string') {
+    html = raw
+  } else if (raw) {
+    html = new TextDecoder().decode(raw as Uint8Array)
+  }
   for (const [key, value] of Object.entries(vars)) {
     html = html.replaceAll(`{{${key}}}`, value)
   }
