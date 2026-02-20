@@ -13,6 +13,7 @@ const form = reactive({
 
 const error = ref("");
 const loading = ref(false);
+const registered = ref(false);
 
 const passwordRules = computed(() => ({
   length:  form.password.length >= 8,
@@ -49,6 +50,7 @@ async function handleRegister() {
     email: form.email,
     password: form.password,
     options: {
+      emailRedirectTo: `${window.location.origin}/confirm`,
       data: {
         first_name: form.firstName,
         last_name: form.lastName,
@@ -63,14 +65,29 @@ async function handleRegister() {
     return;
   }
 
-  navigateTo("/dashboard");
+  registered.value = true;
+  loading.value = false;
 }
 </script>
 
 <template>
   <div class="min-h-[70vh] flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+
+      <!-- Check email screen -->
+      <div v-if="registered" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-gray-900 mb-1">Check your email</h2>
+        <p class="text-sm text-gray-500 mb-1">We sent a confirmation link to</p>
+        <p class="text-sm font-semibold text-gray-900 mb-4">{{ form.email }}</p>
+        <p class="text-xs text-gray-400">Click the link in the email to activate your account. Check your spam folder if you don't see it.</p>
+      </div>
+
+      <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h1 class="text-xl font-bold text-gray-900 mb-1">Create an account</h1>
         <p class="text-sm text-gray-500 mb-5">Register as a blood donor</p>
 
@@ -220,3 +237,4 @@ async function handleRegister() {
     </div>
   </div>
 </template>
+
