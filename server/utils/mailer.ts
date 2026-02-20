@@ -33,11 +33,14 @@ export async function sendApplicationStatusEmail(opts: {
   firstName: string
   status: 'approved' | 'rejected'
   rejectionReason?: string
+  applicationId?: string
 }) {
   if (opts.status === 'approved') {
+    const appUrl = process.env.APP_URL ?? 'https://blood-donation-system-neon.vercel.app'
     const html = await loadTemplate('application-approved', {
       firstName: opts.firstName,
-      appUrl: process.env.APP_URL ?? 'https://blood-donation-system-neon.vercel.app',
+      appUrl,
+      applicationId: opts.applicationId ?? '',
     })
     await sendEmail({
       to: opts.to,

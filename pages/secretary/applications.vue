@@ -62,7 +62,7 @@ async function updateStatus(status: 'approved' | 'rejected') {
     return
   }
 
-  const { error } = await client
+  const { error } = await (client as any)
     .from('donation_applications')
     .update({
       status,
@@ -83,6 +83,7 @@ async function updateStatus(status: 'approved' | 'rejected') {
         email: citizenEmail,
         firstName: citizenFirstName,
         status,
+        applicationId: selectedApp.value.id,
         rejectionReason: status === 'rejected' ? rejectionReason.value : undefined,
       },
     }).catch((err) => { console.error('[Email] Fetch error:', err); return null })
