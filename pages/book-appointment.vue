@@ -28,6 +28,13 @@ today.setHours(0, 0, 0, 0)
 
 const dateStepRef = ref<HTMLElement | null>(null)
 
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 onMounted(async () => {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return
@@ -83,13 +90,13 @@ watch(selectedClinic, async (newClinic) => {
 const minDate = computed((): string => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().split('T')[0]!
+  return toLocalDateStr(tomorrow)
 })
 
 const maxDate = computed((): string => {
   const threeMonths = new Date()
   threeMonths.setMonth(threeMonths.getMonth() + 3)
-  return threeMonths.toISOString().split('T')[0]!
+  return toLocalDateStr(threeMonths)
 })
 
 const currentMonthDisplay = computed(() => {
@@ -127,7 +134,7 @@ const calendarDays = computed(() => {
     const date = new Date(year, month - 1, day)
     days.push({
       day,
-      date: date.toISOString().split('T')[0]!,
+      date: toLocalDateStr(date),
       isCurrentMonth: false,
       isSelectable: false,
       isSelected: false,
@@ -137,7 +144,7 @@ const calendarDays = computed(() => {
 
   for (let day = 1; day <= totalDays; day++) {
     const date = new Date(year, month, day)
-    const dateStr = date.toISOString().split('T')[0]!
+    const dateStr = toLocalDateStr(date)
     const isSelectable = date >= minDateObj && date <= maxDateObj
     const isToday = date.getTime() === today.getTime()
 
@@ -156,7 +163,7 @@ const calendarDays = computed(() => {
     const date = new Date(year, month + 1, day)
     days.push({
       day,
-      date: date.toISOString().split('T')[0]!,
+      date: toLocalDateStr(date),
       isCurrentMonth: false,
       isSelectable: false,
       isSelected: false,
