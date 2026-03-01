@@ -39,8 +39,12 @@ onMounted(async () => {
   verifying.value = false
 
   if (success) {
-    confirmed.value = true
-    setTimeout(() => navigateTo('/dashboard'), 2500)
+    if (type === 'recovery') {
+      navigateTo('/reset-password')
+    } else {
+      confirmed.value = true
+      setTimeout(() => navigateTo('/dashboard'), 2500)
+    }
   }
 })
 </script>
