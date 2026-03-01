@@ -48,7 +48,7 @@ async function handleForgotPassword() {
   loading.value = true;
 
   const { error: resetError } = await client.auth.resetPasswordForEmail(email.value, {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: `${window.location.origin}/confirm`,
   });
 
   if (resetError) {
