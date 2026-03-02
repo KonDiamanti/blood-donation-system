@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// Supabase redirects auth errors (e.g. expired links) to the Site URL with error params.
-// Forward them to /confirm so the error is displayed properly.
+// Supabase redirects auth callbacks to the Site URL when redirectTo is not whitelisted.
+// Forward code/error params to /confirm so they are handled properly.
 const route = useRoute()
-if (route.query.error) {
+if (route.query.code || route.query.error) {
   const params = new URLSearchParams(route.query as Record<string, string>)
   navigateTo(`/confirm?${params.toString()}`)
 }
