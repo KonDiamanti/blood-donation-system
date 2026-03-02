@@ -12,6 +12,14 @@ onMounted(async () => {
   const tokenHash = route.query.token_hash as string
   const type = route.query.type as string
   const code = route.query.code as string
+  const errorParam = route.query.error_description as string || route.query.error as string
+
+  // Handle errors forwarded from Supabase (e.g. expired links)
+  if (errorParam) {
+    error.value = errorParam.replace(/\+/g, ' ')
+    verifying.value = false
+    return
+  }
 
   let success = false
 

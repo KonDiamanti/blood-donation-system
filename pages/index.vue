@@ -1,4 +1,12 @@
 <script setup lang="ts">
+// Supabase redirects auth errors (e.g. expired links) to the Site URL with error params.
+// Forward them to /confirm so the error is displayed properly.
+const route = useRoute()
+if (route.query.error) {
+  const params = new URLSearchParams(route.query as Record<string, string>)
+  navigateTo(`/confirm?${params.toString()}`)
+}
+
 type WhoBloodStats = {
   donations: string;
   ratePer1000: string;
